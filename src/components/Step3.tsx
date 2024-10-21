@@ -1,7 +1,13 @@
 import React from 'react';
+import { FormData } from './FormData';
 import { Home, BarChart, TrendingUp, Calendar } from 'lucide-react'; // Icons for fields
 
-const Step3 = ({ formData, handleInputChange }) => (
+interface Step3Props {
+  formData: CustomFormData;
+  handleInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+}
+
+const Step3: React.FC<Step3Props> = ({ formData, handleInputChange }) => (
   <div className="space-y-8 bg-white shadow-lg rounded-xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
     {/* Form Title */}
     <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-teal-500">

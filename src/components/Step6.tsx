@@ -1,7 +1,7 @@
 import React from 'react';
 import { Lightbulb, CheckCircle } from 'lucide-react'; // Import icons for added visuals
 
-const Step6 = () => (
+const Step6: React.FC = () => (
   <div className="space-y-8 bg-white shadow-lg rounded-xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
     {/* Form Title */}
     <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">

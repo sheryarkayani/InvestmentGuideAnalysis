@@ -1,7 +1,18 @@
 import React from 'react';
 import { DollarSign, CreditCard, FileText } from 'lucide-react'; // Icons for inputs
 
-const Step2 = ({ formData, handleInputChange }) => (
+interface FormData {
+  monthlyIncome: string;
+  monthlyExpenses: string;
+  debts: string;
+}
+
+interface Step2Props {
+  formData: FormData;
+  handleInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+}
+
+const Step2: React.FC<Step2Props> = ({ formData, handleInputChange }) => (
   <div className="space-y-8 bg-white shadow-lg rounded-xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
     {/* Form Title */}
     <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">

@@ -2,7 +2,7 @@
 import * as XLSX from 'xlsx';
 
 // Function to load the Excel inventory data
-export const loadInventoryData = async (excelFilePath) => {
+export const loadInventoryData = async (excelFilePath: string) => {
   const response = await fetch(excelFilePath);
   const data = await response.arrayBuffer();
   const workbook = XLSX.read(data, { type: 'array' });
@@ -13,27 +13,24 @@ export const loadInventoryData = async (excelFilePath) => {
 };
 
 // Function to recommend a unit based on client data and inventory
-export const recommendUnit = (inventoryData, formData) => {
+export const recommendUnit = (inventoryData: any[], formData: any) => {
   if (!inventoryData.length) return { recommendedUnit: null, recommendationReason: '' };
 
   // Extract client data from formData
   const {
-    monthlyIncome,
-    monthlyExpenses,
     investmentPreference,
     downPaymentCapability,
     liquidityPreference,
   } = formData;
 
   // Calculate disposable income and filter units based on affordability
-  const disposableIncome = monthlyIncome - monthlyExpenses;
-  const affordableUnits = inventoryData.filter((unit) => {
+  const affordableUnits = inventoryData.filter((unit: any) => {
     const downPayment = unit['Down Payment 25%'];
     return downPayment <= downPaymentCapability;
   });
 
   // Filter based on investment preferences
-  const preferredUnits = affordableUnits.filter((unit) => {
+  const preferredUnits = affordableUnits.filter((unit: any) => {
     if (investmentPreference === 'Rental Income') {
       return unit.Type === 'Commercial Shop'; // Assume commercial units are better for rental income
     } else if (investmentPreference === 'Long-term Appreciation') {
@@ -43,7 +40,7 @@ export const recommendUnit = (inventoryData, formData) => {
   });
 
   // Filter based on liquidity preferences
-  const filteredUnits = preferredUnits.filter((unit) => {
+  const filteredUnits = preferredUnits.filter((unit: any) => {
     if (liquidityPreference === 'High') {
       return unit.Status === 'Not Sold'; // High liquidity means not sold and in demand
     }

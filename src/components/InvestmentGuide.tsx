@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { FormData } from './FormData';
+
 import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import jsPDF from 'jspdf';
 
@@ -13,7 +15,7 @@ import Step7Summary from './Step7Summary';
 
 export default function InvestmentGuideForm() {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CustomFormData>({
     name: '',
     residentialStatus: '',
     homeValue: '',
@@ -34,7 +36,7 @@ export default function InvestmentGuideForm() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setFormData((prevData: CustomFormData) => ({ ...prevData, [name]: value }));
   };
 
   const nextStep = () => setStep((prevStep) => Math.min(prevStep + 1, 7));

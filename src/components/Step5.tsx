@@ -1,7 +1,12 @@
 import React from 'react';
 import { TrendingUp, Clock, DollarSign } from 'lucide-react'; // Icons for the fields
 
-const Step5 = ({ formData, handleInputChange }) => (
+interface Step5Props {
+  formData: any;
+  handleInputChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
+const Step5: React.FC<Step5Props> = ({ formData, handleInputChange }) => (
   <div className="space-y-8 bg-white shadow-lg rounded-xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
     {/* Form Title */}
     <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-600">

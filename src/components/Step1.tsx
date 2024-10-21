@@ -1,7 +1,12 @@
 import React from 'react';
 import { User, Home, Info } from 'lucide-react'; // Example icon imports from a library like lucide-react
 
-const Step1 = ({ formData, handleInputChange }) => (
+interface StepProps {
+  formData: any;
+  handleInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+}
+
+const Step1: React.FC<StepProps> = ({ formData, handleInputChange }) => (
   <div className="space-y-8 bg-white shadow-lg rounded-xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
     {/* Form Title */}
     <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-600">🚀 KYC (Know Your Client)</h2>

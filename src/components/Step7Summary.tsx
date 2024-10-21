@@ -2,8 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { loadInventoryData, recommendUnit } from './recommendationEngine'; // Import the recommendation logic
 import PrintSummary from './PrintSummary'; // Import the PrintSummary component
 
-const Step7Summary = ({ formData, generatePDF }) => {
-  const [inventoryData, setInventoryData] = useState([]);
+interface Step7SummaryProps {
+  formData: any;
+  generatePDF: () => void;
+}
+
+const Step7Summary: React.FC<Step7SummaryProps> = ({ formData, generatePDF }) => {
+  const [inventoryData, setInventoryData] = useState<any[]>([]);
   const [recommendedUnit, setRecommendedUnit] = useState(null);
   const [recommendationReason, setRecommendationReason] = useState(''); // Reason for recommendation
   const [isLoading, setIsLoading] = useState(true); // Loader state
@@ -14,7 +19,7 @@ const Step7Summary = ({ formData, generatePDF }) => {
       try {
         const excelFilePath = '/assets/sheet/inv.xlsx'; // Path to your Excel file
         const data = await loadInventoryData(excelFilePath);
-        setInventoryData(data);
+        setInventoryData(data as any[]);
         setIsLoading(false);
       } catch (error) {
         console.error('Error loading Excel data:', error);
@@ -40,7 +45,9 @@ const Step7Summary = ({ formData, generatePDF }) => {
         <p>Loading inventory data...</p>
       ) : recommendedUnit ? (
         <div className="recommendation">
-          <h3>Recommended Unit: {recommendedUnit.No}</h3>
+          {recommendedUnit && (
+            <h3>Recommended Unit: {(recommendedUnit as any).No}</h3>
+          )}
           <p>{recommendationReason}</p>
         </div>
       ) : (
