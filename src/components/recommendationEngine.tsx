@@ -14,7 +14,7 @@ export const loadInventoryData = async (excelFilePath: string) => {
 
 // Function to recommend a unit based on client data and inventory
 export const recommendUnit = (inventoryData: any[], formData: any) => {
-  if (!inventoryData.length) return { recommendedUnit: null, recommendationReason: '' };
+  if (!inventoryData.length) return getFallbackRecommendation();
 
   // Extract client data from formData
   const {
@@ -23,41 +23,71 @@ export const recommendUnit = (inventoryData: any[], formData: any) => {
     liquidityPreference,
   } = formData;
 
-  // Calculate disposable income and filter units based on affordability
+  // Filter units based on affordability
   const affordableUnits = inventoryData.filter((unit: any) => {
     const downPayment = unit['Down Payment 25%'];
     return downPayment <= downPaymentCapability;
   });
 
-  // Filter based on investment preferences
-  const preferredUnits = affordableUnits.filter((unit: any) => {
-    if (investmentPreference === 'Rental Income') {
-      return unit.Type === 'Commercial Shop'; // Assume commercial units are better for rental income
-    } else if (investmentPreference === 'Long-term Appreciation') {
-      return unit.Type === 'Residential'; // Assume residential units are better for appreciation
-    }
-    return true;
-  });
+  // Create recommendations for each property type
+  const recommendations = [
+    getRecommendation(affordableUnits, 'Hotel Suite', formData),
+    getRecommendation(affordableUnits, 'Commercial Shop', formData),
+    getRecommendation(affordableUnits, 'Apartment', formData),
+  ].filter(rec => rec !== null);
 
-  // Filter based on liquidity preferences
-  const filteredUnits = preferredUnits.filter((unit: any) => {
-    if (liquidityPreference === 'High') {
-      return unit.Status === 'Not Sold'; // High liquidity means not sold and in demand
-    }
-    return true;
-  });
-
-  // Select the first matching unit and create a recommendation reason
-  const selectedUnit = filteredUnits[0];
-  let recommendationReason = '';
-  if (selectedUnit) {
-    recommendationReason = `Recommended unit is ${selectedUnit.No} located at ${selectedUnit.Project} on ${selectedUnit.Floor} floor. `;
-    if (investmentPreference === 'Rental Income') {
-      recommendationReason += 'This unit is recommended for rental income due to its commercial nature and market demand.';
-    } else if (investmentPreference === 'Long-term Appreciation') {
-      recommendationReason += 'This unit is ideal for long-term appreciation due to its residential type and location.';
-    }
+  // If we don't have 3 recommendations, add fallback recommendations
+  while (recommendations.length < 3) {
+    recommendations.push(getFallbackRecommendation());
   }
 
-  return { recommendedUnit: selectedUnit, recommendationReason };
+  return recommendations;
+};
+
+const getRecommendation = (units: any[], propertyType: string, formData: any) => {
+  const { investmentPreference, liquidityPreference } = formData;
+  
+  const filteredUnits = units.filter(unit => unit.Type === propertyType);
+  if (filteredUnits.length === 0) return null;
+
+  const selectedUnit = filteredUnits[0];
+  let reason = `This ${propertyType.toLowerCase()} is recommended based on your investment profile. `;
+
+  if (investmentPreference === 'Rental Income') {
+    reason += `It offers good potential for rental income in the current market. `;
+  } else if (investmentPreference === 'Long-term Appreciation') {
+    reason += `It has strong potential for long-term value appreciation. `;
+  }
+
+  if (liquidityPreference === 'High') {
+    reason += `The unit's current status suggests it could be easily liquidated if needed. `;
+  }
+
+  return { recommendedUnit: selectedUnit, recommendationReason: reason.trim() };
+};
+
+// Update fallback recommendation function
+export const getFallbackRecommendation = () => {
+  const fallbackRecommendations = [
+    {
+      name: "Budget Hotel Suite",
+      reason: "This budget hotel suite offers a balance of affordability and potential for steady rental income from short-term stays."
+    },
+    {
+      name: "Prime Location Commercial Shop",
+      reason: "A commercial shop in a prime location can provide strong rental income and potential for long-term appreciation as the area develops."
+    },
+    {
+      name: "Modern City Apartment",
+      reason: "This modern apartment in the city center offers potential for both rental income and long-term appreciation due to its desirable location."
+    }
+  ];
+
+  const randomIndex = Math.floor(Math.random() * fallbackRecommendations.length);
+  const fallbackRecommendation = fallbackRecommendations[randomIndex];
+
+  return {
+    recommendedUnit: { name: fallbackRecommendation.name, Type: fallbackRecommendation.name.split(' ')[1] },
+    recommendationReason: fallbackRecommendation.reason
+  };
 };

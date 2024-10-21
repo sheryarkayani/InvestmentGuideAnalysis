@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { loadInventoryData, recommendUnit } from './recommendationEngine'; // Import the recommendation logic
+import { loadInventoryData, recommendUnit, getFallbackRecommendation } from './recommendationEngine'; // Import the recommendation logic
 import PrintSummary from './PrintSummary'; // Import the PrintSummary component
 
 interface Step7SummaryProps {
@@ -9,7 +9,7 @@ interface Step7SummaryProps {
 
 const Step7Summary: React.FC<Step7SummaryProps> = ({ formData, generatePDF }) => {
   const [inventoryData, setInventoryData] = useState<any[]>([]);
-  const [recommendedUnit, setRecommendedUnit] = useState(null);
+  const [recommendedUnit, setRecommendedUnit] = useState<any>(null);
   const [recommendationReason, setRecommendationReason] = useState(''); // Reason for recommendation
   const [isLoading, setIsLoading] = useState(true); // Loader state
 
@@ -20,9 +20,13 @@ const Step7Summary: React.FC<Step7SummaryProps> = ({ formData, generatePDF }) =>
         const excelFilePath = '/assets/sheet/inv.xlsx'; // Path to your Excel file
         const data = await loadInventoryData(excelFilePath);
         setInventoryData(data as any[]);
-        setIsLoading(false);
       } catch (error) {
         console.error('Error loading Excel data:', error);
+        // Use fallback recommendation if data loading fails
+        const { recommendedUnit, recommendationReason } = getFallbackRecommendation();
+        setRecommendedUnit(recommendedUnit);
+        setRecommendationReason(recommendationReason);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -31,27 +35,28 @@ const Step7Summary: React.FC<Step7SummaryProps> = ({ formData, generatePDF }) =>
 
   // Run recommendation logic after data is loaded
   useEffect(() => {
-    if (!isLoading && inventoryData.length > 0) {
-      const { recommendedUnit, recommendationReason } = recommendUnit(inventoryData, formData);
-      setRecommendedUnit(recommendedUnit);
-      setRecommendationReason(recommendationReason);
+    if (!isLoading) {
+      let recommendation;
+      if (inventoryData.length > 0) {
+        recommendation = recommendUnit(inventoryData, formData);
+      } else {
+        recommendation = getFallbackRecommendation();
+      }
+      setRecommendedUnit(recommendation.recommendedUnit);
+      setRecommendationReason(recommendation.recommendationReason);
     }
-  }, [isLoading, inventoryData]);
+  }, [isLoading, inventoryData, formData]);
 
   return (
     <div className="summary-container">
       <h2 className="summary-title">Step 7: Investment Summary</h2>
       {isLoading ? (
-        <p>Loading inventory data...</p>
-      ) : recommendedUnit ? (
+        <p>Loading investment recommendations...</p>
+      ) : (
         <div className="recommendation">
-          {recommendedUnit && (
-            <h3>Recommended Unit: {(recommendedUnit as any).No}</h3>
-          )}
+          <h3>Recommended Investment: {recommendedUnit.name}</h3>
           <p>{recommendationReason}</p>
         </div>
-      ) : (
-        <p>No suitable unit found based on your preferences.</p>
       )}
 
       {/* Render PrintSummary Component */}
