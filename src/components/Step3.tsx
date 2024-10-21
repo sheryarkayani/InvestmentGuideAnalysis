@@ -1,6 +1,13 @@
 import React from 'react';
-import { FormData } from './FormData';
 import { Home, BarChart, TrendingUp, Calendar } from 'lucide-react'; // Icons for fields
+
+interface CustomFormData {
+  propertyCount: string;
+  propertyValues: string;
+  propertyReturns: string;
+  propertyExpectations: string;
+  // Add other properties as needed
+}
 
 interface Step3Props {
   formData: CustomFormData;

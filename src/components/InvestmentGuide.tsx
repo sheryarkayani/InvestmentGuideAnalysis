@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { FormData } from './FormData';
 
 import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -12,6 +11,26 @@ import Step4 from './Step4';
 import Step5 from './Step5';
 import Step6 from './Step6';
 import Step7Summary from './Step7Summary';
+
+// Add this interface definition
+interface CustomFormData {
+  name: string;
+  residentialStatus: string;
+  homeValue: string;
+  monthlyIncome: string;
+  monthlyExpenses: string;
+  debts: string;
+  propertyCount: string;
+  propertyValues: string;
+  propertyReturns: string;
+  propertyExpectations: string;
+  investmentSecurity: string;
+  expectedReturn: string;
+  liquidationExpectation: string;
+  investmentPreference: string;
+  investmentTimeHorizon: string;
+  liquidityPreference: string;
+}
 
 export default function InvestmentGuideForm() {
   const [step, setStep] = useState(1);
