@@ -14,19 +14,12 @@ export const loadInventoryData = async (excelFilePath: string) => {
 
 // Function to recommend a unit based on client data and inventory
 export const recommendUnit = (inventoryData: any[], formData: any) => {
-  if (!inventoryData.length) return getFallbackRecommendation();
-
-  // Extract client data from formData
-  const {
-    investmentPreference,
-    downPaymentCapability,
-    liquidityPreference,
-  } = formData;
+  if (!inventoryData.length) return [getFallbackRecommendation()];
 
   // Filter units based on affordability
   const affordableUnits = inventoryData.filter((unit: any) => {
     const downPayment = unit['Down Payment 25%'];
-    return downPayment <= downPaymentCapability;
+    return downPayment <= formData.downPaymentCapability;
   });
 
   // Create recommendations for each property type

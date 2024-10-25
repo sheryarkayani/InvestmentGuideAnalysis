@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { loadInventoryData, recommendUnit, getFallbackRecommendation } from './recommendationEngine'; // Import the recommendation logic
-import PrintSummary from './PrintSummary'; // Import the PrintSummary component
+import PrintSummary, { Recommendation, PrintSummaryProps } from './PrintSummary'; // Import the PrintSummary component
 
 interface Step7SummaryProps {
   formData: any;
@@ -9,8 +9,7 @@ interface Step7SummaryProps {
 
 const Step7Summary: React.FC<Step7SummaryProps> = ({ formData, generatePDF }) => {
   const [inventoryData, setInventoryData] = useState<any[]>([]);
-  const [recommendedUnit, setRecommendedUnit] = useState<any>(null);
-  const [recommendationReason, setRecommendationReason] = useState(''); // Reason for recommendation
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(true); // Loader state
 
   // Load the Excel data on mount
@@ -22,10 +21,7 @@ const Step7Summary: React.FC<Step7SummaryProps> = ({ formData, generatePDF }) =>
         setInventoryData(data as any[]);
       } catch (error) {
         console.error('Error loading Excel data:', error);
-        // Use fallback recommendation if data loading fails
-        const { recommendedUnit, recommendationReason } = getFallbackRecommendation();
-        setRecommendedUnit(recommendedUnit);
-        setRecommendationReason(recommendationReason);
+        setRecommendations([getFallbackRecommendation() as Recommendation]);
       } finally {
         setIsLoading(false);
       }
@@ -36,16 +32,15 @@ const Step7Summary: React.FC<Step7SummaryProps> = ({ formData, generatePDF }) =>
   // Run recommendation logic after data is loaded
   useEffect(() => {
     if (!isLoading) {
-      let recommendation;
-      if (inventoryData.length > 0) {
-        recommendation = recommendUnit(inventoryData, formData);
-      } else {
-        recommendation = getFallbackRecommendation();
-      }
-      setRecommendedUnit(recommendation.recommendedUnit);
-      setRecommendationReason(recommendation.recommendationReason);
+      const recommendationResults = recommendUnit(inventoryData, formData) as Recommendation[];
+      setRecommendations(recommendationResults);
     }
   }, [isLoading, inventoryData, formData]);
+
+  const printSummaryProps: PrintSummaryProps = {
+    formData,
+    recommendations,
+  };
 
   return (
     <div className="summary-container">
@@ -53,18 +48,17 @@ const Step7Summary: React.FC<Step7SummaryProps> = ({ formData, generatePDF }) =>
       {isLoading ? (
         <p>Loading investment recommendations...</p>
       ) : (
-        <div className="recommendation">
-          <h3>Recommended Investment: {recommendedUnit.name}</h3>
-          <p>{recommendationReason}</p>
+        <div className="recommendations">
+          {recommendations.map((rec, index) => (
+            <div key={index} className="recommendation">
+              <h3>Recommended Investment {index + 1}: {rec.recommendedUnit.name}</h3>
+              <p>{rec.recommendationReason}</p>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Render PrintSummary Component */}
-      <PrintSummary
-        formData={formData}
-        recommendedUnit={recommendedUnit}
-        recommendationReason={recommendationReason}
-      />
+      <PrintSummary {...printSummaryProps} />
 
       {/* Submit button */}
       <button
